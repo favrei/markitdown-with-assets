@@ -1,5 +1,5 @@
-import types
 import sys
+from types import SimpleNamespace
 from pathlib import Path
 
 import markitdown_ext.cli as cli
@@ -22,8 +22,7 @@ def test_cli_saves_assets(tmp_path, monkeypatch):
             Path(output_md_path).write_text("dummy")
             return FakeResult()
 
-    fake_mod = types.SimpleNamespace(MarkItDown=FakeMarkItDown)
-    monkeypatch.setitem(sys.modules, "markitdown", fake_mod)
+    monkeypatch.setitem(sys.modules, "markitdown", SimpleNamespace(MarkItDown=FakeMarkItDown))
 
     cli.main([str(pdf), str(output_md)])
 
