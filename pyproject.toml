@@ -1,0 +1,17 @@
+[project]
+name = "markitdown-ext"
+version = "0.1.0"
+dependencies = [
+    "markitdown>=1.4.0",
+    "pillow>=10.3",
+]
+requires-python = ">=3.8"
+description = "Internal wrapper around markitdown that persists embedded assets"
+readme = "README.md"
+
+[project.scripts]
+markitdownx = "markitdown_ext.cli:main"
+
+[build-system]
+requires = ["setuptools>=78", "wheel>=0.45"]
+build-backend = "setuptools.build_meta"
