@@ -27,8 +27,9 @@ def test_asset_extraction_creates_assets(tmp_path, monkeypatch):
     pdf_path = Path(__file__).parent / "fixtures" / "1706.03762v7.pdf"
     output_dir = tmp_path / "output"
     output_dir.mkdir()
-    assets_dir = output_dir / f"{pdf_path.stem}_assets"
     output_file = output_dir / "result.md"
+    # Assets directory is now based on the output file's stem and location
+    assets_dir = output_file.parent / (output_file.stem + "_assets")
 
     class DummyResult:
         def __init__(self) -> None:
@@ -44,16 +45,12 @@ def test_asset_extraction_creates_assets(tmp_path, monkeypatch):
 
     monkeypatch.setattr("markitdown_ext.cli.MarkItDown", DummyMarkItDown)
 
-    old_cwd = os.getcwd()
-    os.chdir(output_dir)
-    try:
-        main([str(pdf_path), "-o", str(output_file)])
-    finally:
-        os.chdir(old_cwd)
+    # Run main directly without changing CWD
+    main([str(pdf_path), "-o", str(output_file)])
 
     asset_file = assets_dir / "image.png"
     assert asset_file.is_file()
     assert asset_file.read_bytes() == b"binarydata"
-    # The markdown should reference the path to the asset within the assets
-    # directory (relative to the CWD where the CLI was run).
+    # The markdown should reference the path to the asset relative to the markdown file.
+    # assets_dir.name will be "result_assets"
     assert f"{assets_dir.name}/image.png" in output_file.read_text()
