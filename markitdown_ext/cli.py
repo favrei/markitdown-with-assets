@@ -35,23 +35,34 @@ def _handle_output(args: argparse.Namespace, result: DocumentConverterResult) ->
         )
 
 
-def _write_attachments(filename: str | None, result: DocumentConverterResult) -> None:
-    """Persist attachments to ``<stem>_assets/`` and rewrite markdown links."""
+def _write_attachments(output_filename: str | None, input_filename: str | None, result: DocumentConverterResult) -> None:
+    """Persist attachments and rewrite markdown links."""
     attachments = getattr(result, "attachments", None)
     if not attachments:
         return
 
-    stem = Path(filename or "stdin").stem
-    assets_dir = Path(f"{stem}_assets")
+    if output_filename:
+        output_file_path = Path(output_filename)
+        assets_dir = output_file_path.parent / (output_file_path.stem + "_assets")
+        # Use relative paths for links in markdown, relative to the markdown file's location
+        link_prefix_for_markdown = Path(assets_dir.name)
+    else:
+        # Output is to stdout, paths should be relative to current working directory or where assets are saved
+        input_file_stem = Path(input_filename or "stdin").stem
+        assets_dir = Path(f"{input_file_stem}_assets")
+        link_prefix_for_markdown = assets_dir
+
     assets_dir.mkdir(parents=True, exist_ok=True)
 
     markdown = result.markdown
     for name, data in attachments.items():
-        path = assets_dir / name
-        if not path.parent.exists():
-            path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(data)
-        markdown = markdown.replace(name, str(path))
+        asset_save_path = assets_dir / name
+        # Ensure parent directory for the asset exists (e.g. if attachment name is "figures/image.png")
+        if not asset_save_path.parent.exists():
+            asset_save_path.parent.mkdir(parents=True, exist_ok=True)
+        asset_save_path.write_bytes(data)
+        # Replace the original attachment name (placeholder) with the new path
+        markdown = markdown.replace(name, str(link_prefix_for_markdown / name))
 
     result.markdown = markdown
 
@@ -235,7 +246,7 @@ def main(argv: list[str] | None = None) -> None:
             keep_data_uris=args.keep_data_uris,
         )
 
-    _write_attachments(args.filename, result)
+    _write_attachments(args.output, args.filename, result)
     _handle_output(args, result)
 
 
