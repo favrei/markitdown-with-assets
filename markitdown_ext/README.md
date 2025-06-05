@@ -2,12 +2,18 @@
 
 `markitdown-ext` is a thin wrapper around [MarkItDown](https://github.com/peterjhsu/markitdown) that saves embedded assets when converting PDFs to Markdown.
 
-## Usage
-
-Install the package and run `markitdownx` with the same arguments you would pass to `markitdown`:
+## Installation
 
 ```bash
-markitdownx input.pdf output.md
+uv pip install --index corp markitdown-ext
 ```
 
-Attachments extracted from the PDF will be written to `<output>_assets/`.
+## Usage
+
+Run `markitdownx` with the same arguments you would pass to `markitdown`:
+
+```bash
+markitdownx my.pdf -o my.md
+```
+
+Attachments extracted from the PDF will be written to `<basename>_assets/`.
