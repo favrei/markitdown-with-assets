@@ -10,4 +10,4 @@ Install the package and run `markitdownx` with the same arguments you would pass
 markitdownx input.pdf output.md
 ```
 
-Attachments extracted from the PDF will be written to `<output>_assets/`.
+Attachments extracted from the PDF will be written to `<input>_assets/`.
